@@ -38,6 +38,7 @@ include::concepts/flat-classpath.adoc[leveloffset=+2]
 
 # Usage
 
+include::usage/getting-started.adoc[leveloffset=+1]
 include::usage/main.adoc[leveloffset=+1]
 
 # Tools

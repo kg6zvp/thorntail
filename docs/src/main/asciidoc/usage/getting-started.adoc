@@ -1,0 +1,137 @@
+[#getting-started]
+
+= `Hello, Thorntail v4`
+
+This tutorial will build a simple application using Thorntail v4 which creates an embedded database and exposes it via a simple ReST API.
+
+## Project Setup
+
+**This tutorial assumes that you have locally built and installed Thorntail v4 from source**
+
+Thorntail doesn't provide a "default" or "catch-all" runtime. It requires the developer to specify the components that are needed. For the beginning of this tutorial, start with just the Jax-RS module
+
+Create a file called `pom.xml` in the root of the project directory. This is not specific to Thorntail. `pom.xml` is a Maven project descriptor.
+
+[source,xml]
+----
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.example</groupId>
+	<artifactId>hello-ttv4</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging> <!-- jar packaging is required -->
+
+	<dependencies>
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>thorntail-jaxrs</artifactId>
+		</dependency>
+
+		<!-- ######################## -->
+		<!-- # Testing Dependencies # -->
+		<!-- ######################## -->
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>thorntail-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>hello-ttv4</finalName>
+		<plugins>
+			<plugin>
+				<groupId>io.thorntail</groupId>
+				<artifactId>thorntail-maven-plugin</artifactId>
+				<version>${version.thorntail}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>package</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<version.thorntail>4.0.0-SNAPSHOT</version.thorntail>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.thorntail</groupId>
+				<artifactId>thorntail-bom</artifactId>
+				<version>${version.thorntail}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
+----
+
+Define the Jax-RS application configuration by creating a java class like so:
+
+`src/main/java/com/example/JaxApp.java`
+
+[source,java]
+----
+package com.example;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+@ApplicationPath("/") //defines a Jax-RS application on the root url of the server
+public class JaxApp extends Application { }
+----
+
+Define a ReST endpoint:
+
+`src/main/java/com/example/HelloEndpoint.java`
+
+[source,java]
+----
+package com.example;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.GET;
+
+@Path("hello")
+public class HelloEndpoint {
+	@GET
+	public String sayHello() {
+		return "Hello, world";
+	}
+}
+----
+
+And finally, a special file called beans.xml needs to be present in your application in order for Thorntail v4 to run properly.
+
+Create an empty file called `src/main/resources/META-INF/beans.xml`
+
+That's it. The project is ready to be deployed and run.
+
+## Run Project
+
+Open the terminal and navigate to the project directory which contains the `pom.xml`.
+
+Invoke maven to package the app:
+
+`$ mvn package`
+
+There is now a runnable jar in the newly-created `target` folder called `hello-ttv4-bin.jar`
+
+Run with:
+
+`$ java -jar target/hello-ttv4-bin.jar`
+
+Open a web browser and navigate to `http://localhost:8080/hello`
+
